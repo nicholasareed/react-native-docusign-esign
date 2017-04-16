@@ -24,6 +24,19 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    packagingOptions {
+        pickFirst "META-INF/services/javax.ws.rs.ext.MessageBodyReader"
+        pickFirst "META-INF/services/javax.ws.rs.ext.MessageBodyWriter"
+        pickFirst "META-INF/services/com.sun.jersey.spi.inject.InjectableProvider"
+        pickFirst "META-INF/jersey-module-version"
+        pickFirst "META-INF/NOTICE"
+        pickFirst "META-INF/LICENSE"
+        pickFirst "META-INF/services/com.fasterxml.jackson.databind.Module"
+        pickFirst "META-INF/services/com.fasterxml.jackson.core.ObjectCodec"
+        pickFirst "META-INF/services/com.fasterxml.jackson.core.JsonFactory"
+    }
+
 }
 
 repositories {
@@ -32,5 +45,6 @@ repositories {
 
 dependencies {
     compile 'com.facebook.react:react-native:+'
+    compile "com.docusign:docusign-esign-java:2.1.0"
 }
   

@@ -1,5 +1,5 @@
 
-package com.reactlibrary;
+package com.docusign.esignsdk;
 
 import android.view.View;
 
@@ -8,8 +8,8 @@ import com.facebook.react.uimanager.ThemedReactContext;
 
 import com.facebook.react.uimanager.annotations.ReactProp;
 
-public class ExampleBridgeManager extends SimpleViewManager<View> {
-    public static final String REACT_CLASS = "ExampleBridge";
+public class RNDocuSignEsignManager extends SimpleViewManager<View> {
+    public static final String REACT_CLASS = "RNDocusignEsign";
 
     @Override
     public String getName() {

@@ -1,4 +1,4 @@
-package com.reactlibrary;
+package com.docusign.esignsdk;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableArray;
