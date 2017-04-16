@@ -45,9 +45,12 @@
 
 ## Usage
 ```javascript
-import RNDocuSignEsign from 'react-native-docu-sign-esign';
 
-// TODO: What to do with the module?
-RNDocuSignEsign;
+var DocuSignBridge  = require('react-native-docusign-esign');
+global.DSBridge = global.DocuSignBridge = DocuSignBridge;
+
+...
+
+
 ```
   

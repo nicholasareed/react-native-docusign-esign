@@ -1,25 +1,28 @@
 
-import { NativeModules } from 'react-native';
+// import { 
+// 	NativeModules,
+// 	Platform
+// } from 'react-native';
 
-const { RNDocuSignEsign } = NativeModules;
+// const { RNDocuSignEsign } = NativeModules;
 
-export default RNDocuSignEsign;
+// export default RNDocuSignEsign;
 
 
 const DSEsignBridge = require('react-native').NativeModules.RNDocuSignEsign;
 
 
-export default {
+module.exports = {
 
   setApiClient(config) {
     return DSEsignBridge.setApiClient(config);
-  }
+  },
 
   AuthenticationApi: {
   	login(params, callback){
   		return DSEsignBridge.authenticationApi_login(params,callback);
   	}
-  }
+  },
 
   FoldersApi: {
 
