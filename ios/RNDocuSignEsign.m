@@ -42,26 +42,27 @@ RCT_EXPORT_MODULE();
 }
 
 // Export methods to a native module
-// https://facebook.github.io/react-native/docs/native-modules-ios.html
-// (NSString *)name details:(NSDictionary *)details
+
+
 RCT_EXPORT_METHOD(setApiClient:(NSDictionary *)authInfo)
 {
-  
-  //NSString *IntegratorKey = @"e2697956-221c-40ad-bdae-57305eb5b389";
-  NSString *IntegratorKey = [RCTConvert NSString:authInfo[@"client_id"]];
-  NSString *username = [RCTConvert NSString:authInfo[@"username"]];
-  NSString *password = [RCTConvert NSString:authInfo[@"password"]];
-  NSString *host = [RCTConvert NSString:authInfo[@"host"]];
-  
-  // create authentication JSON string and header
-  // NSString *const DS_AUTH
-  DS_AUTH = [NSMutableString stringWithFormat:@"{\"Username\":\"%@\",\"Password\":\"%@\",\"IntegratorKey\":\"%@\"}", username, password, IntegratorKey];
-  DS_AUTH_HEADER = @"X-DocuSign-Authentication";
-  
-  // instantiate api client, configure environment URL and assign auth data
-  apiClient = [[DSApiClient alloc] initWithBaseURL:[[NSURL alloc] initWithString:host]];
-  
-  //callback(@[[NSNull null], @true]);
+    NSString *host;
+    if([RCTConvert NSString:authInfo[@"token"]]){
+        NSString *token = [RCTConvert NSString:authInfo[@"token"]];
+        host = [RCTConvert NSString:authInfo[@"host"]];
+        DS_AUTH = [NSMutableString stringWithFormat:@"Bearer %@", token];
+        DS_AUTH_HEADER = @"Authorization";
+    } else {
+        NSString *integratorKey = [RCTConvert NSString:authInfo[@"client_id"]];
+        NSString *username = [RCTConvert NSString:authInfo[@"username"]];
+        NSString *password = [RCTConvert NSString:authInfo[@"password"]];
+        host = [RCTConvert NSString:authInfo[@"host"]];
+        DS_AUTH = [NSMutableString stringWithFormat:@"{\"Username\":\"%@\",\"Password\":\"%@\",\"IntegratorKey\":\"%@\"}", username, password, integratorKey];
+        DS_AUTH_HEADER = @"X-DocuSign-Authentication";
+    }
+
+    // instantiate api client, configure environment URL and assign auth data
+    apiClient = [[DSApiClient alloc] initWithBaseURL:[[NSURL alloc] initWithString:host]];
 }
 
 
@@ -136,19 +137,20 @@ RCT_EXPORT_METHOD(foldersApi_listFolderItems:(NSString *)accountId:(NSString *)f
 }
 
 
-RCT_EXPORT_METHOD(envelopeApi_createEnvelope:(NSString *)accountId:(NSDictionary *)envelopeInfo:(NSDictionary *)params:(RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(envelopesApi_createEnvelope:(NSString *)accountId:(NSDictionary *)envelopeInfo:(NSDictionary *)params:(RCTResponseSenderBlock)callback)
 {
   
   DSEnvelopesApi *envelopesApi = [[DSEnvelopesApi alloc] initWithApiClient:apiClient];
   [envelopesApi addHeader:DS_AUTH forKey:DS_AUTH_HEADER];
   
   // Create document from passed-in information
-  // - TODO
-  DSEnvelopeDefinition* envelopeDefinition = [[DSEnvelopeDefinition alloc] init];
+    NSError *error;
+  DSEnvelopeDefinition* envelopeDefinition = [[DSEnvelopeDefinition alloc] initWithDictionary:envelopeInfo error:&error];
   
-  DSEnvelopesApi_CreateEnvelopeOptions* createEnvelopeOptions = [[DSEnvelopesApi_CreateEnvelopeOptions alloc] init];
-  createEnvelopeOptions.cdseMode = @"false"; // [RCTConvert NSString:params[@"cdseMode"]];
-  createEnvelopeOptions.mergeRolesOnDraft = @"false";
+  DSEnvelopesApi_CreateEnvelopeOptions* createEnvelopeOptions = [[DSEnvelopesApi_CreateEnvelopeOptions alloc] initWithDictionary:params error:&error];
+    
+  // createEnvelopeOptions.cdseMode = @"false"; // [RCTConvert NSString:params[@"cdseMode"]];
+  // createEnvelopeOptions.mergeRolesOnDraft = @"false";
   
   [envelopesApi createEnvelopeWithCompletionBlock:accountId envelopeDefinition:envelopeDefinition options:createEnvelopeOptions completionHandler:^(DSEnvelopeSummary *output, NSError *error) {
     
@@ -160,23 +162,24 @@ RCT_EXPORT_METHOD(envelopeApi_createEnvelope:(NSString *)accountId:(NSDictionary
 }
 
 
-//NSArray* jsonString = [DSObject arrayOfDictionariesFromModels: output.loginAccounts];
-//callback(@[[NSNull null], jsonString]);
+RCT_EXPORT_METHOD(envelopesApi_createRecipientView:(NSString *)accountId:(NSString *)envelopeId:(NSDictionary *)incomingRecipientReviewRequest:(RCTResponseSenderBlock)callback)
+{
+    
+    DSEnvelopesApi *envelopesApi = [[DSEnvelopesApi alloc] initWithApiClient:apiClient];
+    [envelopesApi addHeader:DS_AUTH forKey:DS_AUTH_HEADER];
+    
+    NSError *error;
+    DSRecipientViewRequest* recipientViewRequest = [[DSRecipientViewRequest alloc] initWithDictionary:incomingRecipientReviewRequest error:&error];
+    
+    [envelopesApi createRecipientViewWithCompletionBlock:accountId envelopeId:envelopeId recipientViewRequest:recipientViewRequest completionHandler:^(DSViewUrl *output, NSError *error) {
+        
+        callback(@[[NSNull null], [output toDictionary]]);
+        
+    }];
+    
+    
+}
 
-//DSLoginAccount *loginAccount = [output.loginAccounts objectAtIndex: 0];
-//accountId = loginAccount.accountId;
-
-
-//NSArray *events = [NSString stringWithFormat:accountId];
-//NSArray *events = [loginAccount];
-//callback(@[[NSNull null], events]);
-
-// convert to dictionary
-//NSDictionary *dict = [pm toDictionary];
-
-// convert to json
-//NSString *string = [loginAccount toJSONString];
-//NSData *jsonData = [NSJSONSerialization dataWithJSONObject:output.loginAccounts options:NSJSONWritingPrettyPrinted error:&error];
 
 
 #pragma mark - Private methods
